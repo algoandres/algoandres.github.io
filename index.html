@@ -1,11 +1,839 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>algoandres</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>algoandres — Curation & Artistic Direction</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Syne:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #080808;
+      --surface: #111111;
+      --border: #222222;
+      --text: #f0ebe3;
+      --muted: #6a6560;
+      --accent: #c8b99a;
+      --font-display: 'Cormorant Garamond', Georgia, serif;
+      --font-ui: 'Syne', sans-serif;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-ui);
+      font-size: 14px;
+      letter-spacing: 0.02em;
+      overflow-x: hidden;
+      cursor: none;
+    }
+
+    /* ── CUSTOM CURSOR ── */
+    .cursor {
+      position: fixed;
+      width: 8px; height: 8px;
+      background: var(--accent);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      transition: transform 0.15s ease, opacity 0.2s;
+      transform: translate(-50%, -50%);
+    }
+    .cursor-ring {
+      position: fixed;
+      width: 36px; height: 36px;
+      border: 1px solid rgba(200,185,154,0.4);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9998;
+      transition: transform 0.4s ease, width 0.3s, height 0.3s, opacity 0.2s;
+      transform: translate(-50%, -50%);
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 28px 48px;
+      mix-blend-mode: normal;
+    }
+
+    nav::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom, rgba(8,8,8,0.95) 0%, transparent 100%);
+      pointer-events: none;
+    }
+
+    .nav-logo {
+      font-family: var(--font-display);
+      font-size: 18px;
+      font-weight: 300;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text);
+      text-decoration: none;
+      position: relative;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 40px;
+      list-style: none;
+      position: relative;
+    }
+
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      transition: color 0.3s;
+    }
+    .nav-links a:hover { color: var(--text); }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 0 48px 80px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 50% at 80% 40%, rgba(200,185,154,0.06) 0%, transparent 60%),
+        radial-gradient(ellipse 40% 60% at 20% 80%, rgba(100,90,80,0.08) 0%, transparent 50%);
+    }
+
+    .hero-noise {
+      position: absolute; inset: 0;
+      opacity: 0.03;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      background-size: 200px;
+    }
+
+    .hero-index {
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-bottom: 32px;
+      opacity: 0;
+      animation: fadeUp 1s ease 0.2s forwards;
+    }
+
+    .hero-title {
+      font-family: var(--font-display);
+      font-size: clamp(64px, 10vw, 140px);
+      font-weight: 300;
+      line-height: 0.9;
+      letter-spacing: -0.02em;
+      margin-bottom: 48px;
+      opacity: 0;
+      animation: fadeUp 1.2s ease 0.4s forwards;
+    }
+
+    .hero-title em {
+      font-style: italic;
+      color: var(--accent);
+    }
+
+    .hero-meta {
+      display: flex;
+      gap: 48px;
+      align-items: flex-end;
+      opacity: 0;
+      animation: fadeUp 1s ease 0.7s forwards;
+    }
+
+    .hero-desc {
+      max-width: 380px;
+      font-size: 13px;
+      line-height: 1.8;
+      color: var(--muted);
+    }
+
+    .hero-disciplines {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-left: auto;
+    }
+
+    .discipline-tag {
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-align: right;
+    }
+
+    .scroll-hint {
+      position: absolute;
+      bottom: 32px; right: 48px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted);
+      opacity: 0;
+      animation: fadeUp 1s ease 1.2s forwards;
+    }
+    .scroll-line {
+      width: 48px;
+      height: 1px;
+      background: var(--muted);
+      transform-origin: left;
+      animation: expandLine 1.5s ease 1.5s both;
+    }
+
+    /* ── FILTER BAR ── */
+    .filter-bar {
+      position: sticky;
+      top: 0;
+      z-index: 90;
+      display: flex;
+      gap: 0;
+      padding: 0 48px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(8,8,8,0.95);
+      backdrop-filter: blur(12px);
+      overflow-x: auto;
+    }
+
+    .filter-btn {
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-family: var(--font-ui);
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      padding: 20px 24px;
+      cursor: none;
+      transition: color 0.3s;
+      white-space: nowrap;
+      border-bottom: 1px solid transparent;
+      margin-bottom: -1px;
+    }
+    .filter-btn:hover { color: var(--text); }
+    .filter-btn.active {
+      color: var(--text);
+      border-bottom-color: var(--accent);
+    }
+
+    /* ── WORK GRID ── */
+    .work-section {
+      padding: 80px 48px;
+    }
+
+    .work-grid {
+      columns: 2;
+      column-gap: 2px;
+      gap: 2px;
+    }
+
+    @media (min-width: 1200px) {
+      .work-grid { columns: 3; }
+    }
+    @media (max-width: 768px) {
+      .work-grid { columns: 1; }
+    }
+
+    .work-item {
+      break-inside: avoid;
+      margin-bottom: 2px;
+      position: relative;
+      overflow: hidden;
+      display: block;
+      cursor: none;
+    }
+
+    .work-item.hidden { display: none; }
+
+    .work-thumb {
+      width: 100%;
+      display: block;
+      aspect-ratio: 4/3;
+      background: var(--surface);
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.6s cubic-bezier(0.16,1,0.3,1);
+    }
+
+    .work-item:nth-child(3n+1) .work-thumb { aspect-ratio: 4/3; }
+    .work-item:nth-child(3n+2) .work-thumb { aspect-ratio: 3/4; }
+    .work-item:nth-child(3n+3) .work-thumb { aspect-ratio: 16/9; }
+
+    .work-thumb img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: block;
+      filter: grayscale(20%);
+      transition: transform 0.8s cubic-bezier(0.16,1,0.3,1), filter 0.6s;
+    }
+
+    .work-item:hover .work-thumb img {
+      transform: scale(1.04);
+      filter: grayscale(0%);
+    }
+
+    /* placeholder when no image */
+    .work-thumb-placeholder {
+      width: 100%; height: 100%;
+      background: var(--surface);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-display);
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      color: var(--border);
+      text-transform: uppercase;
+    }
+
+    .work-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(8,8,8,0.9) 0%, transparent 50%);
+      opacity: 0;
+      transition: opacity 0.4s;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 24px;
+    }
+
+    .work-item:hover .work-overlay { opacity: 1; }
+
+    .work-title {
+      font-family: var(--font-display);
+      font-size: 20px;
+      font-weight: 300;
+      color: var(--text);
+      margin-bottom: 6px;
+      transform: translateY(8px);
+      transition: transform 0.4s ease;
+    }
+    .work-item:hover .work-title { transform: translateY(0); }
+
+    .work-meta {
+      font-size: 10px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--accent);
+      transform: translateY(8px);
+      transition: transform 0.4s ease 0.05s;
+    }
+    .work-item:hover .work-meta { transform: translateY(0); }
+
+    /* ── SELECTED WORKS HEADER ── */
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 48px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .section-title {
+      font-family: var(--font-display);
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .section-count {
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+    }
+
+    /* ── ABOUT SECTION ── */
+    .about-section {
+      padding: 120px 48px;
+      border-top: 1px solid var(--border);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: start;
+    }
+
+    @media (max-width: 768px) {
+      .about-section { grid-template-columns: 1fr; gap: 48px; }
+    }
+
+    .about-label {
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 32px;
+    }
+
+    .about-statement {
+      font-family: var(--font-display);
+      font-size: clamp(28px, 3.5vw, 44px);
+      font-weight: 300;
+      line-height: 1.25;
+      color: var(--text);
+    }
+
+    .about-statement em {
+      font-style: italic;
+      color: var(--accent);
+    }
+
+    .about-bio {
+      padding-top: 48px;
+    }
+
+    .about-bio p {
+      font-size: 14px;
+      line-height: 1.9;
+      color: var(--muted);
+      margin-bottom: 24px;
+    }
+
+    .services-list {
+      margin-top: 48px;
+      border-top: 1px solid var(--border);
+      padding-top: 32px;
+    }
+
+    .service-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 0;
+      border-bottom: 1px solid var(--border);
+      transition: padding-left 0.3s;
+      cursor: none;
+    }
+    .service-item:hover { padding-left: 12px; }
+
+    .service-name {
+      font-family: var(--font-display);
+      font-size: 18px;
+      font-weight: 300;
+    }
+
+    .service-arrow {
+      color: var(--muted);
+      font-size: 18px;
+      transition: color 0.3s;
+    }
+    .service-item:hover .service-arrow { color: var(--accent); }
+
+    /* ── CONTACT ── */
+    .contact-section {
+      padding: 120px 48px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 24px;
+    }
+
+    .contact-label {
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .contact-title {
+      font-family: var(--font-display);
+      font-size: clamp(48px, 8vw, 110px);
+      font-weight: 300;
+      line-height: 1;
+      letter-spacing: -0.02em;
+    }
+
+    .contact-title em {
+      font-style: italic;
+      color: var(--accent);
+    }
+
+    .contact-email {
+      font-size: 13px;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+      text-decoration: none;
+      margin-top: 16px;
+      transition: color 0.3s;
+    }
+    .contact-email:hover { color: var(--text); }
+
+    /* ── FOOTER ── */
+    footer {
+      padding: 32px 48px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .footer-copy {
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 32px;
+    }
+
+    .footer-links a {
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+    .footer-links a:hover { color: var(--text); }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes expandLine {
+      from { transform: scaleX(0); }
+      to   { transform: scaleX(1); }
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ── MOBILE ── */
+    @media (max-width: 768px) {
+      nav { padding: 20px 24px; }
+      .nav-links { display: none; }
+      .hero { padding: 0 24px 60px; }
+      .hero-meta { flex-direction: column; gap: 24px; }
+      .hero-disciplines { margin-left: 0; }
+      .discipline-tag { text-align: left; }
+      .filter-bar { padding: 0 24px; }
+      .work-section { padding: 48px 24px; }
+      .about-section { padding: 80px 24px; }
+      .contact-section { padding: 80px 24px; }
+      footer { padding: 24px; flex-direction: column; gap: 16px; }
+    }
+  </style>
 </head>
 <body>
-  <h1>algoandres</h1>
-  <p>Online.</p>
+
+  <!-- Cursor -->
+  <div class="cursor" id="cursor"></div>
+  <div class="cursor-ring" id="cursorRing"></div>
+
+  <!-- Nav -->
+  <nav>
+    <a href="#" class="nav-logo">Algoandres</a>
+    <ul class="nav-links">
+      <li><a href="#work">Work</a></li>
+      <li><a href="#about">About</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-noise"></div>
+    <div class="hero-index">Portfolio — 2025</div>
+    <h1 class="hero-title">
+      Curation<br>
+      &amp; <em>Artistic</em><br>
+      Direction
+    </h1>
+    <div class="hero-meta">
+      <p class="hero-desc">
+        Building portals to another dimension through image, motion, and sound. 
+        A practice rooted in postproduction, editorial vision, and the space between disciplines.
+      </p>
+      <div class="hero-disciplines">
+        <span class="discipline-tag">Film & Video</span>
+        <span class="discipline-tag">Photography</span>
+        <span class="discipline-tag">Graphic Design</span>
+        <span class="discipline-tag">Motion & VFX</span>
+        <span class="discipline-tag">Music & Sound</span>
+      </div>
+    </div>
+    <div class="scroll-hint">
+      <div class="scroll-line"></div>
+      Scroll
+    </div>
+  </section>
+
+  <!-- Filter Bar -->
+  <div class="filter-bar" id="work">
+    <button class="filter-btn active" data-filter="all">All</button>
+    <button class="filter-btn" data-filter="film">Film & Video</button>
+    <button class="filter-btn" data-filter="photo">Photography</button>
+    <button class="filter-btn" data-filter="design">Graphic Design</button>
+    <button class="filter-btn" data-filter="motion">Motion & VFX</button>
+    <button class="filter-btn" data-filter="sound">Music & Sound</button>
+  </div>
+
+  <!-- Work Grid -->
+  <section class="work-section">
+    <div class="section-header reveal">
+      <span class="section-title">Selected Works</span>
+      <span class="section-count" id="workCount">8 projects</span>
+    </div>
+
+    <div class="work-grid" id="workGrid">
+
+      <!-- REPLACE src="" with your image paths, e.g. src="images/project1.jpg" -->
+
+      <div class="work-item reveal" data-category="film">
+        <div class="work-thumb">
+          <div class="work-thumb-placeholder">[ Your Image ]</div>
+          <!-- <img src="images/film-01.jpg" alt="Project title"> -->
+          <div class="work-overlay">
+            <div class="work-title">Project Title Here</div>
+            <div class="work-meta">Film · 2025</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="work-item reveal" data-category="photo">
+        <div class="work-thumb">
+          <div class="work-thumb-placeholder">[ Your Image ]</div>
+          <div class="work-overlay">
+            <div class="work-title">Project Title Here</div>
+            <div class="work-meta">Photography · 2024</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="work-item reveal" data-category="motion">
+        <div class="work-thumb">
+          <div class="work-thumb-placeholder">[ Your Image ]</div>
+          <div class="work-overlay">
+            <div class="work-title">Project Title Here</div>
+            <div class="work-meta">Motion · 2025</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="work-item reveal" data-category="design">
+        <div class="work-thumb">
+          <div class="work-thumb-placeholder">[ Your Image ]</div>
+          <div class="work-overlay">
+            <div class="work-title">Project Title Here</div>
+            <div class="work-meta">Graphic Design · 2024</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="work-item reveal" data-category="sound">
+        <div class="work-thumb">
+          <div class="work-thumb-placeholder">[ Your Image ]</div>
+          <div class="work-overlay">
+            <div class="work-title">Project Title Here</div>
+            <div class="work-meta">Music & Sound · 2025</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="work-item reveal" data-category="film">
+        <div class="work-thumb">
+          <div class="work-thumb-placeholder">[ Your Image ]</div>
+          <div class="work-overlay">
+            <div class="work-title">Project Title Here</div>
+            <div class="work-meta">Film · 2024</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="work-item reveal" data-category="photo">
+        <div class="work-thumb">
+          <div class="work-thumb-placeholder">[ Your Image ]</div>
+          <div class="work-overlay">
+            <div class="work-title">Project Title Here</div>
+            <div class="work-meta">Photography · 2025</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="work-item reveal" data-category="motion">
+        <div class="work-thumb">
+          <div class="work-thumb-placeholder">[ Your Image ]</div>
+          <div class="work-overlay">
+            <div class="work-title">Project Title Here</div>
+            <div class="work-meta">Motion & VFX · 2024</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- About -->
+  <section class="about-section" id="about">
+    <div>
+      <div class="about-label reveal">About</div>
+      <h2 class="about-statement reveal">
+        Work that lives in the <em>space between</em> disciplines.
+      </h2>
+    </div>
+    <div class="about-bio reveal">
+      <p>
+        <!-- Replace with your own bio -->
+        Based in [Your City], I work at the intersection of image, motion, and sound — 
+        developing visual languages for artists, brands, and independent projects 
+        that demand something beyond the expected.
+      </p>
+      <p>
+        My practice spans artistic direction, postproduction, and curation — 
+        from concept to final frame. I'm drawn to work that carries weight, 
+        that earns its beauty through precision and intention.
+      </p>
+
+      <div class="services-list">
+        <div class="service-item reveal">
+          <span class="service-name">Artistic Direction</span>
+          <span class="service-arrow">→</span>
+        </div>
+        <div class="service-item reveal">
+          <span class="service-name">Postproduction</span>
+          <span class="service-arrow">→</span>
+        </div>
+        <div class="service-item reveal">
+          <span class="service-name">Film & Video</span>
+          <span class="service-arrow">→</span>
+        </div>
+        <div class="service-item reveal">
+          <span class="service-name">Motion & VFX</span>
+          <span class="service-arrow">→</span>
+        </div>
+        <div class="service-item reveal">
+          <span class="service-name">Curation</span>
+          <span class="service-arrow">→</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact -->
+  <section class="contact-section" id="contact">
+    <span class="contact-label reveal">Get in touch</span>
+    <h2 class="contact-title reveal">
+      Let's make<br><em>something</em>
+    </h2>
+    <!-- Replace with your actual email -->
+    <a href="mailto:hello@algoandres.github.io" class="contact-email reveal">hello@algoandres.github.io</a>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <span class="footer-copy">© 2025 Algoandres</span>
+    <div class="footer-links">
+      <!-- Replace with your real social links -->
+      <a href="#">Instagram</a>
+      <a href="#">Vimeo</a>
+      <a href="#">LinkedIn</a>
+    </div>
+  </footer>
+
+  <script>
+    // ── Custom cursor
+    const cursor = document.getElementById('cursor');
+    const ring   = document.getElementById('cursorRing');
+    let mx = 0, my = 0, rx = 0, ry = 0;
+
+    document.addEventListener('mousemove', e => {
+      mx = e.clientX; my = e.clientY;
+      cursor.style.left = mx + 'px';
+      cursor.style.top  = my + 'px';
+    });
+
+    (function animRing() {
+      rx += (mx - rx) * 0.12;
+      ry += (my - ry) * 0.12;
+      ring.style.left = rx + 'px';
+      ring.style.top  = ry + 'px';
+      requestAnimationFrame(animRing);
+    })();
+
+    document.querySelectorAll('a, button, .work-item, .service-item').forEach(el => {
+      el.addEventListener('mouseenter', () => {
+        ring.style.width  = '56px';
+        ring.style.height = '56px';
+        ring.style.borderColor = 'rgba(200,185,154,0.7)';
+      });
+      el.addEventListener('mouseleave', () => {
+        ring.style.width  = '36px';
+        ring.style.height = '36px';
+        ring.style.borderColor = 'rgba(200,185,154,0.4)';
+      });
+    });
+
+    // ── Filter
+    const filterBtns = document.querySelectorAll('.filter-btn');
+    const workItems  = document.querySelectorAll('.work-item');
+    const countEl    = document.getElementById('workCount');
+
+    filterBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        filterBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const f = btn.dataset.filter;
+        let visible = 0;
+        workItems.forEach(item => {
+          const match = f === 'all' || item.dataset.category === f;
+          item.classList.toggle('hidden', !match);
+          if (match) visible++;
+        });
+        countEl.textContent = `${visible} project${visible !== 1 ? 's' : ''}`;
+      });
+    });
+
+    // ── Scroll reveal
+    const reveals = document.querySelectorAll('.reveal');
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach((entry, i) => {
+        if (entry.isIntersecting) {
+          setTimeout(() => entry.target.classList.add('visible'), i * 60);
+        }
+      });
+    }, { threshold: 0.1 });
+    reveals.forEach(el => observer.observe(el));
+  </script>
 </body>
 </html>
